@@ -1,11 +1,17 @@
 import React, { useEffect } from 'react';
 import { Text, View } from 'react-native';
-import { CarPlay, NowPlayingTemplate } from 'react-native-carplay';
+import { CarPlay, NowPlayingTemplate, NowPlayingTemplateConfig } from 'react-native-carplay';
 
 export function NowPlaying() {
   useEffect(() => {
     CarPlay.enableNowPlaying();
-    const template = new NowPlayingTemplate({});
+    const config: NowPlayingTemplateConfig = {
+      albumArtistButton: true,
+      upNextTitle: 'Título siguiente',
+      upNextButton: true,
+    }
+    const template = new NowPlayingTemplate(config);
+    CarPlay.pushNowPlaying();
     // CarPlay.pushTemplate(template);
     // CarPlay.presentTemplate(template);
     return () => {};
