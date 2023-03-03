@@ -4,6 +4,8 @@
 #import <React/RCTEventEmitter.h>
 #import "RCTConvert+RNCarPlay.h"
 #import "RNCPStore.h"
+#import <MediaPlayer/MediaPlayer.h>
+#import <AVFoundation/AVFoundation.h>
 
 typedef void(^SearchResultUpdateBlock)(NSArray<CPListItem *> * _Nonnull);
 typedef void(^SelectedResultBlock)(void);
@@ -21,6 +23,7 @@ typedef void(^SelectedResultBlock)(void);
 @property (nonatomic, copy) SearchResultUpdateBlock searchResultBlock;
 @property (nonatomic, copy) SelectedResultBlock selectedResultBlock;
 @property (nonatomic) BOOL isNowPlayingActive;
+
 
 + (void) connectWithInterfaceController:(CPInterfaceController*)interfaceController window:(CPWindow*)window;
 + (void) disconnect;

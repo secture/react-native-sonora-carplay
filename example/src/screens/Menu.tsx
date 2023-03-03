@@ -18,11 +18,11 @@ export function Menu({ navigation }) {
           titleVariants: ['Grid'],
           image: gridItemImage,
         },
-        {
-          id: 'Map',
-          titleVariants: ['Map'],
-          image: gridItemImage,
-        },
+        // {
+        //   id: 'Map',
+        //   titleVariants: ['Map'],
+        //   image: gridItemImage,
+        // },
         {
           id: 'Search',
           titleVariants: ['Search'],
@@ -48,6 +48,11 @@ export function Menu({ navigation }) {
           titleVariants: ['ActionSheet'],
           image: gridItemImage,
         },
+        {
+          id: 'NowPlaying',
+          titleVariants: ['NowPlaying'],
+          image: gridItemImage,
+        }
       ],
       onButtonPressed: ({ id }) => {
         navigation.navigate(id);

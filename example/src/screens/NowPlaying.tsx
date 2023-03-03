@@ -4,8 +4,10 @@ import { CarPlay, NowPlayingTemplate } from 'react-native-carplay';
 
 export function NowPlaying() {
   useEffect(() => {
+    CarPlay.enableNowPlaying();
     const template = new NowPlayingTemplate({});
-    CarPlay.pushTemplate(template);
+    // CarPlay.pushTemplate(template);
+    // CarPlay.presentTemplate(template);
     return () => {};
   }, []);
 

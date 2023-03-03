@@ -5,6 +5,11 @@
  * @format
  */
 
+const path = require('path');
+const rncpPath = path.resolve(__dirname + '/../.');
+const rncp = {'react-native-carplay': rncpPath};
+const watchFolder = [rncpPath]
+
 module.exports = {
   transformer: {
     getTransformOptions: async () => ({
@@ -14,4 +19,6 @@ module.exports = {
       },
     }),
   },
+  resolver: {rncp},
+  watchFolder,
 };
