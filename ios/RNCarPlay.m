@@ -1,7 +1,7 @@
 #import "RNCarPlay.h"
 #import <React/RCTConvert.h>
 #import <React/RCTRootView.h>
-
+@import CarPlay;
 @implementation RNCarPlay
 
 @synthesize interfaceController;
@@ -18,18 +18,13 @@ CPNowPlayingTemplate *nowPlayingTemplate;
     
     // playbackObserver
     playbackObserver = [[NSNotificationCenter defaultCenter] addObserverForName:MPMusicPlayerControllerPlaybackStateDidChangeNotification object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *note) {
-        // todo actualizar estado de reproducción
         NSLog(@"MPMusicPlayerControllerPlaybackStateDidChange: %ld", (long)[[MPMusicPlayerController applicationQueuePlayer] playbackState]);
-        //[MemoryLogger.shared appendEvent:@"MPMusicPlayerControllerPlaybackStateDidChange"];
     }];
     
     
     // nowPlayingItemObserver
     nowPlayingItemObserver = [[NSNotificationCenter defaultCenter] addObserverForName:MPMusicPlayerControllerNowPlayingItemDidChangeNotification object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *note) {
-        // todo actualizar datos de programa
-        
         NSLog(@"MPMusicPlayerControllerNowPlayingItemDidChange", (long)[[MPMusicPlayerController applicationQueuePlayer] playbackState]);
-        //[MemoryLogger.shared appendEvent:@"MPMusicPlayerControllerNowPlayingItemDidChange"];
     }];
     
     [nowPlayingTemplate addObserver:playbackObserver];
@@ -429,66 +424,24 @@ RCT_EXPORT_METHOD(pushTemplate:(NSString *)templateId animated:(BOOL)animated) {
 }
 
 RCT_EXPORT_METHOD(pushNowPlaying) {
-    //RNCPStore *store = [RNCPStore sharedManager];
-//    CPTemplate *template = [CPNowPlayingTemplate sharedTemplate] ;
-//    [template init];
-//    [nowPlayingTemplate setUserInfo:@{ @"info": @"información de usuario" }];
-//    [nowPlayingTemplate setTabTitle:@"título del tab"];
-    
-    
-    
-//    AVPlayer *player = [[AVPlayer alloc] init];
-//    NSURL *url = [NSURL URLWithString:@"https://24503.live.streamtheworld.com/977_HITSAAC_SC"];
-//    AVPlayerItem *playerItem = [[AVPlayerItem alloc] initWithURL:url];
-//    player = [[AVPlayer alloc] initWithPlayerItem:playerItem];
-//    player.rate = 1.0;
-//    [player play];
-    
-    
-//    NSMutableDictionary<NSString *, id> *nowPlayingInfo = [NSMutableDictionary dictionary];
-//    nowPlayingInfo[MPMediaItemPropertyTitle]=@"Título";
-//    nowPlayingInfo[MPMediaItemPropertyArtist]=@"Artista";
-//    MPNowPlayingInfoCenter.defaultCenter.nowPlayingInfo = nowPlayingInfo;
-//    MPNowPlayingInfoCenter.defaultCenter.playbackState = MPNowPlayingPlaybackStatePlaying;
-    
-    MPNowPlayingInfoCenter *infoCenter = [MPNowPlayingInfoCenter defaultCenter];
-    NSMutableDictionary *songInfo = [[NSMutableDictionary alloc] init];
-    [songInfo setValue:@"Nombre de la canción" forKey:MPMediaItemPropertyTitle];
-    [songInfo setValue:@"Nombre del artista" forKey:MPMediaItemPropertyArtist];
-    [infoCenter setNowPlayingInfo:songInfo];
-    [infoCenter setPlaybackState:MPNowPlayingPlaybackStatePlaying];
-//    [nowPlayingTemplate setValue:@"Canción" forKey:MPMediaItemPropertyTitle];
-//    [nowPlayingTemplate setValue:@"Artista" forKey:MPMediaItemPropertyArtist];
-    [[NSNotificationCenter defaultCenter] postNotification:MPMusicPlayerControllerNowPlayingItemDidChangeNotification];
-    
-    //UIApplication *application = [UIApplication sharedApplication];
-//    application.endReceivingRemoteControlEvents;
-//    application.beginReceivingRemoteControlEvents;
-    //AVAudioSession *audioSession = [AVAudioSession sharedInstance];
-    //NSError *error = nil;
-    //BOOL success = [audioSession setCategory:AVAudioSessionCategoryPlayback error:&error];
-    //if (!success) {
-    //    NSLog(@"Error al configurar la categoría de audio: %@", error.localizedDescription);
-    //}
-    //success = [audioSession setActive:YES error:&error];
-    //if (!success) {
-    //    NSLog(@"Error al activar la sesión de audio: %@", error.localizedDescription);
-    //}
-    //MPRemoteCommandCenter *commandCenter = [MPRemoteCommandCenter sharedCommandCenter];
-
-}
-
-RCT_EXPORT_METHOD(popToNowPlaying) {
     RNCPStore *store = [RNCPStore sharedManager];
     CPTemplate *template = [CPNowPlayingTemplate sharedTemplate];
+    UIApplication *application = [UIApplication sharedApplication];
+
+    [store.interfaceController pushTemplate:template animated:YES];
+    if([store.interfaceController topTemplate] == template) {
+        return;
+    }
     
-    if (template) {
-        [store.interfaceController popToTemplate:template animated:YES completion:^(BOOL DONE, NSError * _Nullable err) {
-            NSLog(@"error %@", err);
-            // noop
-        }];
+#if TARGET_OS_SIMULATOR
+    [application endReceivingRemoteControlEvents];
+    [application beginReceivingRemoteControlEvents];
+#endif
+    
+    if([[store.interfaceController templates] containsObject:template]) {
+        [store.interfaceController popToTemplate:template animated:YES];
     } else {
-        NSLog(@"Failed to pop now playing template %@", template);
+        [store.interfaceController pushTemplate:template animated:YES];
     }
 }
 
