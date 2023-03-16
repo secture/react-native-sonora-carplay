@@ -17,7 +17,7 @@ export interface ListItem {
   /**
    * The image from file system displayed on the leading edge of the list item cell.
    */
-  imgUrl?: null;
+  imgUrl?: string;
   /**
    * A Boolean value indicating whether the list item cell shows a disclosure indicator on the trailing edge of the list item cell.
    */
@@ -26,4 +26,8 @@ export interface ListItem {
    * Is Playing flag.
    */
   isPlaying?: boolean;
+  /**
+   * Progress of track. Float between 0.0 and 1.0
+   */
+  playbackProgress?: number;
 }
