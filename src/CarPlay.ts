@@ -114,12 +114,11 @@ class CarPlayInterface {
     return this.bridge.pushTemplate(templateToPush.id, animated);
   }
 
+  /**
+   * Pushes NowPlaying shared template on top on the navigation stack.
+   */
   public pushNowPlaying(): void {
     return this.bridge.pushNowPlaying();
-  }
-
-  public popToNowPlaying(): void {
-    return this.bridge.popToNowPlaying();
   }
 
   /**
