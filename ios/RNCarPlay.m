@@ -1,7 +1,7 @@
 #import "RNCarPlay.h"
 #import <React/RCTConvert.h>
 #import <React/RCTRootView.h>
-
+@import CarPlay;
 @implementation RNCarPlay
 
 @synthesize interfaceController;
@@ -9,6 +9,27 @@
 @synthesize searchResultBlock;
 @synthesize selectedResultBlock;
 @synthesize isNowPlayingActive;
+
+NSObject *nowPlayingItemObserver;
+NSObject *playbackObserver;
+CPNowPlayingTemplate *nowPlayingTemplate;
+
++ (void)addObservers {
+    
+    // playbackObserver
+    playbackObserver = [[NSNotificationCenter defaultCenter] addObserverForName:MPMusicPlayerControllerPlaybackStateDidChangeNotification object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *note) {
+        NSLog(@"MPMusicPlayerControllerPlaybackStateDidChange: %ld", (long)[[MPMusicPlayerController applicationQueuePlayer] playbackState]);
+    }];
+    
+    
+    // nowPlayingItemObserver
+    nowPlayingItemObserver = [[NSNotificationCenter defaultCenter] addObserverForName:MPMusicPlayerControllerNowPlayingItemDidChangeNotification object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *note) {
+        NSLog(@"MPMusicPlayerControllerNowPlayingItemDidChange", (long)[[MPMusicPlayerController applicationQueuePlayer] playbackState]);
+    }];
+    
+    [nowPlayingTemplate addObserver:playbackObserver];
+    [nowPlayingTemplate addObserver:nowPlayingItemObserver];
+}
 
 + (void) connectWithInterfaceController:(CPInterfaceController*)interfaceController window:(CPWindow*)window {
     RNCPStore * store = [RNCPStore sharedManager];
@@ -20,6 +41,17 @@
     if (cp.bridge) {
         [cp sendEventWithName:@"didConnect" body:@{}];
     }
+    
+    nowPlayingTemplate = [CPNowPlayingTemplate sharedTemplate];
+    CPNowPlayingRepeatButton *repeatButton = [[CPNowPlayingRepeatButton alloc] initWithHandler:^(__kindof CPNowPlayingButton * _Nonnull) {
+        // noop
+    }];
+    CPNowPlayingPlaybackRateButton *playbackRateButton = [[CPNowPlayingPlaybackRateButton alloc] initWithHandler:^(__kindof CPNowPlayingButton * _Nonnull) {
+        // noop
+    }];
+    [nowPlayingTemplate updateNowPlayingButtons:@[repeatButton, playbackRateButton]];
+    [self addObservers];
+    
 }
 
 + (void) disconnect {
@@ -391,6 +423,28 @@ RCT_EXPORT_METHOD(pushTemplate:(NSString *)templateId animated:(BOOL)animated) {
     }
 }
 
+RCT_EXPORT_METHOD(pushNowPlaying) {
+    RNCPStore *store = [RNCPStore sharedManager];
+    CPTemplate *template = [CPNowPlayingTemplate sharedTemplate];
+    UIApplication *application = [UIApplication sharedApplication];
+
+    [store.interfaceController pushTemplate:template animated:YES];
+    if([store.interfaceController topTemplate] == template) {
+        return;
+    }
+    
+#if TARGET_OS_SIMULATOR
+    [application endReceivingRemoteControlEvents];
+    [application beginReceivingRemoteControlEvents];
+#endif
+    
+    if([[store.interfaceController templates] containsObject:template]) {
+        [store.interfaceController popToTemplate:template animated:YES];
+    } else {
+        [store.interfaceController pushTemplate:template animated:YES];
+    }
+}
+
 RCT_EXPORT_METHOD(popToTemplate:(NSString *)templateId animated:(BOOL)animated) {
     RNCPStore *store = [RNCPStore sharedManager];
     CPTemplate *template = [store findTemplateById:templateId];
@@ -669,7 +723,7 @@ RCT_EXPORT_METHOD(updateMapTemplateMapButtons:(NSString*) templateId mapButtons:
         NSArray *leadingNavigationBarButtons = [self parseBarButtons:[RCTConvert NSArray:config[@"leadingNavigationBarButtons"]] templateId:templateId];
         [mapTemplate setLeadingNavigationBarButtons:leadingNavigationBarButtons];
     }
-  
+
     if ([config objectForKey:@"trailingNavigationBarButtons"]){
         NSArray *trailingNavigationBarButtons = [self parseBarButtons:[RCTConvert NSArray:config[@"trailingNavigationBarButtons"]] templateId:templateId];
         [mapTemplate setTrailingNavigationBarButtons:trailingNavigationBarButtons];

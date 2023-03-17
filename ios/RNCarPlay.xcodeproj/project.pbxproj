@@ -283,7 +283,7 @@
 				E344BBEE22494CBD006FD80D /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		E344BCC422495851006FD80D /* Build configuration list for PBXNativeTarget "RNCarPlay" */ = {
 			isa = XCConfigurationList;
@@ -292,7 +292,7 @@
 				E344BCC622495851006FD80D /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
 	};
