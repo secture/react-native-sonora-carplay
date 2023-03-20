@@ -570,6 +570,9 @@ RCT_EXPORT_METHOD(updateListTemplateItem:(NSString *)templateId config:(NSDictio
         if (config[@"isPlaying"]) {
             [item setPlaying:[RCTConvert BOOL:config[@"isPlaying"]]];
         }
+        if (config[@"playbackProgress"]) {
+            [item setPlaybackProgress: [RCTConvert CGFloat:config[@"playbackProgress"]]];
+        }
     } else {
         NSLog(@"Failed to find template %@", template);
     }
@@ -857,6 +860,9 @@ RCT_EXPORT_METHOD(updateMapTemplateMapButtons:(NSString*) templateId mapButtons:
         CPListItem *_item = [[CPListItem alloc] initWithText:_text detailText:_detailText image:_image showsDisclosureIndicator:_showsDisclosureIndicator];
         if ([item objectForKey:@"isPlaying"]) {
             [_item setPlaying:[RCTConvert BOOL:[item objectForKey:@"isPlaying"]]];
+        }
+        if ([item objectForKey:@"playbackProgress"]) {
+            [_item setPlaybackProgress:[RCTConvert CGFloat:[item objectForKey:@"playbackProgress"]]];
         }
         [_item setUserInfo:@{ @"index": @(index) }];
         [_items addObject:_item];
