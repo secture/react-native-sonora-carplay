@@ -1172,6 +1172,19 @@ RCT_EXPORT_METHOD(updateMapTemplateMapButtons:(NSString*) templateId mapButtons:
     [self sendTemplateEventWithName:tabBarTemplate name:@"didSelectTemplate" json:@{@"selectedTemplateId":selectedTemplateId}];
 }
 
+- (void)tabBarTemplate:(CPTabBarTemplate *)tabBarTemplate viewDidLoad:(NSArray<CPTemplate *> *)templates {
+    [super viewDidLoad];
+    // Añadir viewDidLoad en TS
+
+    for(CPTemplate *template in templates) {
+        UIImage *icon = [UIImage systemImageNamed:@"play.fill"];
+        NSString *title = template.tabTitle;
+        CPBarButton *barButton = [[CPBarButton alloc] initWithImage:icon title:title handler:^(CPBarButton * _Nonnull) {
+            //noop
+        }];
+    }
+}
+
 # pragma PointOfInterest
 -(void)pointOfInterestTemplate:(CPPointOfInterestTemplate *)pointOfInterestTemplate didChangeMapRegion:(MKCoordinateRegion)region {
     // noop
