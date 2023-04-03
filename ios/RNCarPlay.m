@@ -15,18 +15,18 @@ NSObject *playbackObserver;
 CPNowPlayingTemplate *nowPlayingTemplate;
 
 + (void)addObservers {
-    
+
     // playbackObserver
     playbackObserver = [[NSNotificationCenter defaultCenter] addObserverForName:MPMusicPlayerControllerPlaybackStateDidChangeNotification object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *note) {
         NSLog(@"MPMusicPlayerControllerPlaybackStateDidChange: %ld", (long)[[MPMusicPlayerController applicationQueuePlayer] playbackState]);
     }];
-    
-    
+
+
     // nowPlayingItemObserver
     nowPlayingItemObserver = [[NSNotificationCenter defaultCenter] addObserverForName:MPMusicPlayerControllerNowPlayingItemDidChangeNotification object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *note) {
         NSLog(@"MPMusicPlayerControllerNowPlayingItemDidChange", (long)[[MPMusicPlayerController applicationQueuePlayer] playbackState]);
     }];
-    
+
     [nowPlayingTemplate addObserver:playbackObserver];
     [nowPlayingTemplate addObserver:nowPlayingItemObserver];
 }
@@ -41,7 +41,7 @@ CPNowPlayingTemplate *nowPlayingTemplate;
     if (cp.bridge) {
         [cp sendEventWithName:@"didConnect" body:@{}];
     }
-    
+
     nowPlayingTemplate = [CPNowPlayingTemplate sharedTemplate];
     CPNowPlayingRepeatButton *repeatButton = [[CPNowPlayingRepeatButton alloc] initWithHandler:^(__kindof CPNowPlayingButton * _Nonnull) {
         // noop
@@ -51,7 +51,7 @@ CPNowPlayingTemplate *nowPlayingTemplate;
     }];
     [nowPlayingTemplate updateNowPlayingButtons:@[repeatButton, playbackRateButton]];
     [self addObservers];
-    
+
 }
 
 + (void) disconnect {
@@ -180,7 +180,7 @@ RCT_EXPORT_METHOD(createTemplate:(NSString *)templateId config:(NSDictionary*)co
         CPListTemplate *listTemplate = [[CPListTemplate alloc] initWithTitle:title sections:sections];
         [listTemplate setLeadingNavigationBarButtons:leadingNavigationBarButtons];
         [listTemplate setTrailingNavigationBarButtons:trailingNavigationBarButtons];
-        CPBarButton *backButton = [[CPBarButton alloc] initWithTitle:@" Back" handler:^(CPBarButton * _Nonnull barButton) {
+        CPBarButton *backButton = [[CPBarButton alloc] initWithTitle:@" Atrás" handler:^(CPBarButton * _Nonnull barButton) {
             [self sendEventWithName:@"backButtonPressed" body:@{@"templateId":templateId}];
             [self popTemplate:false];
         }];
@@ -191,6 +191,7 @@ RCT_EXPORT_METHOD(createTemplate:(NSString *)templateId config:(NSDictionary*)co
         if (config[@"emptyViewSubtitleVariants"]) {
             listTemplate.emptyViewSubtitleVariants = [RCTConvert NSArray:config[@"emptyViewSubtitleVariants"]];
         }
+
         listTemplate.delegate = self;
         template = listTemplate;
     }
@@ -295,6 +296,9 @@ RCT_EXPORT_METHOD(createTemplate:(NSString *)templateId config:(NSDictionary*)co
     }
     if (config[@"tabImage"]) {
         template.tabImage = [RCTConvert UIImage:config[@"tabImage"]];
+    }
+    if (config[@"tabTitle"]) {
+        template.tabTitle = [RCTConvert NSString:config[@"tabTitle"]];
     }
 
 
@@ -432,12 +436,12 @@ RCT_EXPORT_METHOD(pushNowPlaying) {
     if([store.interfaceController topTemplate] == template) {
         return;
     }
-    
+
 #if TARGET_OS_SIMULATOR
     [application endReceivingRemoteControlEvents];
     [application beginReceivingRemoteControlEvents];
 #endif
-    
+
     if([[store.interfaceController templates] containsObject:template]) {
         [store.interfaceController popToTemplate:template animated:YES];
     } else {
