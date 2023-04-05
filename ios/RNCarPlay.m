@@ -42,14 +42,6 @@ CPNowPlayingTemplate *nowPlayingTemplate;
         [cp sendEventWithName:@"didConnect" body:@{}];
     }
 
-    nowPlayingTemplate = [CPNowPlayingTemplate sharedTemplate];
-    CPNowPlayingRepeatButton *repeatButton = [[CPNowPlayingRepeatButton alloc] initWithHandler:^(__kindof CPNowPlayingButton * _Nonnull) {
-        // noop
-    }];
-    CPNowPlayingPlaybackRateButton *playbackRateButton = [[CPNowPlayingPlaybackRateButton alloc] initWithHandler:^(__kindof CPNowPlayingButton * _Nonnull) {
-        // noop
-    }];
-    [nowPlayingTemplate updateNowPlayingButtons:@[repeatButton, playbackRateButton]];
     [self addObservers];
 
 }
