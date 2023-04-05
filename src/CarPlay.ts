@@ -23,7 +23,11 @@ type PushableTemplates =
   | InformationTemplate
   | ContactTemplate
   | NowPlayingTemplate;
-type PresentableTemplates = AlertTemplate | ActionSheetTemplate | VoiceControlTemplate;
+type PresentableTemplates =
+  | AlertTemplate
+  | ActionSheetTemplate
+  | VoiceControlTemplate
+  | NowPlayingTemplate;
 
 /**
  * A controller that manages all user interface elements appearing on your map displayed on the CarPlay screen.
@@ -108,6 +112,13 @@ class CarPlayInterface {
    */
   public pushTemplate(templateToPush: PushableTemplates, animated = true) {
     return this.bridge.pushTemplate(templateToPush.id, animated);
+  }
+
+  /**
+   * Pushes NowPlaying shared template on top on the navigation stack.
+   */
+  public pushNowPlaying(): void {
+    return this.bridge.pushNowPlaying();
   }
 
   /**

@@ -9,7 +9,7 @@ export { ContactTemplate, ContactTemplateConfig } from './templates/ContactTempl
 export { ActionSheetTemplate, ActionSheetTemplateConfig } from './templates/ActionSheetTemplate';
 export { AlertTemplate, AlertTemplateConfig } from './templates/AlertTemplate';
 export { InformationTemplate, InformationTemplateConfig } from './templates/InformationTemplate';
-export { NowPlayingTemplate } from './templates/NowPlayingTemplate';
+export { NowPlayingTemplate, NowPlayingTemplateConfig } from './templates/NowPlayingTemplate';
 export {
   PointOfInterestTemplate,
   PointOfInterestTemplateConfig,

@@ -33,6 +33,10 @@ export interface TemplateConfig {
    */
   trailingNavigationBarButtons?: BarButton[];
   /**
+   * Text for tab
+   */
+  tabTitle?: string;
+  /**
    * UITabBarSystemItem
    */
   tabSystemItem?: number;
@@ -43,7 +47,7 @@ export interface TemplateConfig {
   /**
    * Name of system image for tab
    */
-  tabImage?: null;
+  tabImage?: string;
   /**
    * Fired before template appears
    * @param e Event

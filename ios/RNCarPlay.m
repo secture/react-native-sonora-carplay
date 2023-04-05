@@ -1,7 +1,7 @@
 #import "RNCarPlay.h"
 #import <React/RCTConvert.h>
 #import <React/RCTRootView.h>
-
+@import CarPlay;
 @implementation RNCarPlay
 
 @synthesize interfaceController;
@@ -9,6 +9,27 @@
 @synthesize searchResultBlock;
 @synthesize selectedResultBlock;
 @synthesize isNowPlayingActive;
+
+NSObject *nowPlayingItemObserver;
+NSObject *playbackObserver;
+CPNowPlayingTemplate *nowPlayingTemplate;
+
++ (void)addObservers {
+
+    // playbackObserver
+    playbackObserver = [[NSNotificationCenter defaultCenter] addObserverForName:MPMusicPlayerControllerPlaybackStateDidChangeNotification object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *note) {
+        NSLog(@"MPMusicPlayerControllerPlaybackStateDidChange: %ld", (long)[[MPMusicPlayerController applicationQueuePlayer] playbackState]);
+    }];
+
+
+    // nowPlayingItemObserver
+    nowPlayingItemObserver = [[NSNotificationCenter defaultCenter] addObserverForName:MPMusicPlayerControllerNowPlayingItemDidChangeNotification object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *note) {
+        NSLog(@"MPMusicPlayerControllerNowPlayingItemDidChange", (long)[[MPMusicPlayerController applicationQueuePlayer] playbackState]);
+    }];
+
+    [nowPlayingTemplate addObserver:playbackObserver];
+    [nowPlayingTemplate addObserver:nowPlayingItemObserver];
+}
 
 + (void) connectWithInterfaceController:(CPInterfaceController*)interfaceController window:(CPWindow*)window {
     RNCPStore * store = [RNCPStore sharedManager];
@@ -20,6 +41,9 @@
     if (cp.bridge) {
         [cp sendEventWithName:@"didConnect" body:@{}];
     }
+
+    [self addObservers];
+
 }
 
 + (void) disconnect {
@@ -148,7 +172,7 @@ RCT_EXPORT_METHOD(createTemplate:(NSString *)templateId config:(NSDictionary*)co
         CPListTemplate *listTemplate = [[CPListTemplate alloc] initWithTitle:title sections:sections];
         [listTemplate setLeadingNavigationBarButtons:leadingNavigationBarButtons];
         [listTemplate setTrailingNavigationBarButtons:trailingNavigationBarButtons];
-        CPBarButton *backButton = [[CPBarButton alloc] initWithTitle:@" Back" handler:^(CPBarButton * _Nonnull barButton) {
+        CPBarButton *backButton = [[CPBarButton alloc] initWithTitle:@" Atrás" handler:^(CPBarButton * _Nonnull barButton) {
             [self sendEventWithName:@"backButtonPressed" body:@{@"templateId":templateId}];
             [self popTemplate:false];
         }];
@@ -159,6 +183,7 @@ RCT_EXPORT_METHOD(createTemplate:(NSString *)templateId config:(NSDictionary*)co
         if (config[@"emptyViewSubtitleVariants"]) {
             listTemplate.emptyViewSubtitleVariants = [RCTConvert NSArray:config[@"emptyViewSubtitleVariants"]];
         }
+
         listTemplate.delegate = self;
         template = listTemplate;
     }
@@ -263,6 +288,9 @@ RCT_EXPORT_METHOD(createTemplate:(NSString *)templateId config:(NSDictionary*)co
     }
     if (config[@"tabImage"]) {
         template.tabImage = [RCTConvert UIImage:config[@"tabImage"]];
+    }
+    if (config[@"tabTitle"]) {
+        template.tabTitle = [RCTConvert NSString:config[@"tabTitle"]];
     }
 
 
@@ -391,6 +419,28 @@ RCT_EXPORT_METHOD(pushTemplate:(NSString *)templateId animated:(BOOL)animated) {
     }
 }
 
+RCT_EXPORT_METHOD(pushNowPlaying) {
+    RNCPStore *store = [RNCPStore sharedManager];
+    CPTemplate *template = [CPNowPlayingTemplate sharedTemplate];
+    UIApplication *application = [UIApplication sharedApplication];
+
+    [store.interfaceController pushTemplate:template animated:YES];
+    if([store.interfaceController topTemplate] == template) {
+        return;
+    }
+
+#if TARGET_OS_SIMULATOR
+    [application endReceivingRemoteControlEvents];
+    [application beginReceivingRemoteControlEvents];
+#endif
+
+    if([[store.interfaceController templates] containsObject:template]) {
+        [store.interfaceController popToTemplate:template animated:YES];
+    } else {
+        [store.interfaceController pushTemplate:template animated:YES];
+    }
+}
+
 RCT_EXPORT_METHOD(popToTemplate:(NSString *)templateId animated:(BOOL)animated) {
     RNCPStore *store = [RNCPStore sharedManager];
     CPTemplate *template = [store findTemplateById:templateId];
@@ -515,6 +565,9 @@ RCT_EXPORT_METHOD(updateListTemplateItem:(NSString *)templateId config:(NSDictio
         }
         if (config[@"isPlaying"]) {
             [item setPlaying:[RCTConvert BOOL:config[@"isPlaying"]]];
+        }
+        if (config[@"playbackProgress"]) {
+            [item setPlaybackProgress: [RCTConvert CGFloat:config[@"playbackProgress"]]];
         }
     } else {
         NSLog(@"Failed to find template %@", template);
@@ -669,7 +722,7 @@ RCT_EXPORT_METHOD(updateMapTemplateMapButtons:(NSString*) templateId mapButtons:
         NSArray *leadingNavigationBarButtons = [self parseBarButtons:[RCTConvert NSArray:config[@"leadingNavigationBarButtons"]] templateId:templateId];
         [mapTemplate setLeadingNavigationBarButtons:leadingNavigationBarButtons];
     }
-  
+
     if ([config objectForKey:@"trailingNavigationBarButtons"]){
         NSArray *trailingNavigationBarButtons = [self parseBarButtons:[RCTConvert NSArray:config[@"trailingNavigationBarButtons"]] templateId:templateId];
         [mapTemplate setTrailingNavigationBarButtons:trailingNavigationBarButtons];
@@ -803,6 +856,9 @@ RCT_EXPORT_METHOD(updateMapTemplateMapButtons:(NSString*) templateId mapButtons:
         CPListItem *_item = [[CPListItem alloc] initWithText:_text detailText:_detailText image:_image showsDisclosureIndicator:_showsDisclosureIndicator];
         if ([item objectForKey:@"isPlaying"]) {
             [_item setPlaying:[RCTConvert BOOL:[item objectForKey:@"isPlaying"]]];
+        }
+        if ([item objectForKey:@"playbackProgress"]) {
+            [_item setPlaybackProgress:[RCTConvert CGFloat:[item objectForKey:@"playbackProgress"]]];
         }
         [_item setUserInfo:@{ @"index": @(index) }];
         [_items addObject:_item];
