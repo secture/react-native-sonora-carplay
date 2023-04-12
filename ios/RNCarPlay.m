@@ -401,6 +401,10 @@ RCT_EXPORT_METHOD(setRootTemplate:(NSString *)templateId animated:(BOOL)animated
             NSLog(@"error %@", err);
             // noop
         }];
+        if ([template isKindOfClass:[CPListTemplate class]]) {
+            CPListTemplate *listTemplate = (CPListTemplate *)template;
+            [listTemplate setBackButton:nil];
+        }
     } else {
         NSLog(@"Failed to find template %@", template);
     }
