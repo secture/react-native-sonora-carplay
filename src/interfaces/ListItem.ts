@@ -1,3 +1,5 @@
+import { ImageResolvedAssetSource } from 'react-native';
+
 /**
  * A list item that appears in a list template.
  */
@@ -11,11 +13,11 @@ export interface ListItem {
    */
   detailText?: string;
   /**
-   * The image displayed on the leading edge of the list item cell.
-   */
-  image?: string;
-  /**
    * The image from file system displayed on the leading edge of the list item cell.
+   */
+  image?: ImageResolvedAssetSource;
+  /**
+   * The image displayed on the leading edge of the list item cell.
    */
   imgUrl?: string;
   /**
