@@ -428,7 +428,6 @@ RCT_EXPORT_METHOD(pushNowPlaying) {
     CPTemplate *template = [CPNowPlayingTemplate sharedTemplate];
     UIApplication *application = [UIApplication sharedApplication];
 
-    [store.interfaceController pushTemplate:template animated:YES];
     if([store.interfaceController topTemplate] == template) {
         return;
     }
