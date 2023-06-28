@@ -1160,9 +1160,11 @@ RCT_EXPORT_METHOD(updateMapTemplateMapButtons:(NSString*) templateId mapButtons:
 # pragma ListTemplate
 
 - (void)listTemplate:(CPListTemplate *)listTemplate didSelectListItem:(CPListItem *)item completionHandler:(void (^)(void))completionHandler {
-    NSNumber* index = [item.userInfo objectForKey:@"index"];
-    [self sendTemplateEventWithName:listTemplate name:@"didSelectListItem" json:@{ @"index": index }];
-    self.selectedResultBlock = completionHandler;
+    if (listTemplate != nil) {
+        NSNumber* index = [item.userInfo objectForKey:@"index"];
+        [self sendTemplateEventWithName:listTemplate name:@"didSelectListItem" json:@{ @"index": index }];
+        self.selectedResultBlock = completionHandler;
+    }
 }
 
 # pragma TabBarTemplate
@@ -1191,7 +1193,9 @@ RCT_EXPORT_METHOD(updateMapTemplateMapButtons:(NSString*) templateId mapButtons:
 }
 
 - (void)templateWillAppear:(CPTemplate *)aTemplate animated:(BOOL)animated {
-    [self sendTemplateEventWithName:aTemplate name:@"willAppear" json:@{ @"animated": @(animated) }];
+    if (aTemplate != nil) {
+        [self sendTemplateEventWithName:aTemplate name:@"willAppear" json:@{ @"animated": @(animated) }];
+    }
 }
 
 - (void)templateWillDisappear:(CPTemplate *)aTemplate animated:(BOOL)animated {
