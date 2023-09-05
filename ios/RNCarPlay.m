@@ -1052,6 +1052,10 @@ RCT_EXPORT_METHOD(updateMapTemplateMapButtons:(NSString*) templateId mapButtons:
 }
 
 - (void)sendTemplateEventWithName:(CPTemplate *)template name:(NSString*)name json:(NSDictionary*)json {
+    if (template == nil) {
+        return;
+    }
+
     NSMutableDictionary *body = [[NSMutableDictionary alloc] initWithDictionary:json];
     NSDictionary *userInfo = [template userInfo];
     [body setObject:[userInfo objectForKey:@"templateId"] forKey:@"templateId"];
@@ -1157,7 +1161,7 @@ RCT_EXPORT_METHOD(updateMapTemplateMapButtons:(NSString*) templateId mapButtons:
 # pragma ListTemplate
 
 - (void)listTemplate:(CPListTemplate *)listTemplate didSelectListItem:(CPListItem *)item completionHandler:(void (^)(void))completionHandler {
-    if (listTemplate != nil) {
+    if (listTemplate != nil && item != nil) {
         NSNumber* index = [item.userInfo objectForKey:@"index"];
         [self sendTemplateEventWithName:listTemplate name:@"didSelectListItem" json:@{ @"index": index }];
         self.selectedResultBlock = completionHandler;
@@ -1166,6 +1170,10 @@ RCT_EXPORT_METHOD(updateMapTemplateMapButtons:(NSString*) templateId mapButtons:
 
 # pragma TabBarTemplate
 - (void)tabBarTemplate:(CPTabBarTemplate *)tabBarTemplate didSelectTemplate:(__kindof CPTemplate *)selectedTemplate {
+    if (tabBarTemplate == nil) {
+        return;
+    }
+    
     NSString* selectedTemplateId = [[selectedTemplate userInfo] objectForKey:@"templateId"];
     [self sendTemplateEventWithName:tabBarTemplate name:@"didSelectTemplate" json:@{@"selectedTemplateId":selectedTemplateId}];
 }
